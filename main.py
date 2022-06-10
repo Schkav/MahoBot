@@ -5,6 +5,7 @@ from discord.ext import commands
 from googletrans import Translator
 from charas import Chara
 from skills import Skills
+from gacha import Gacha
 import random
 import discord
 
@@ -71,6 +72,53 @@ Passive
 {}
         ```""".format(*skills_summary)
     await ctx.send(message)
+
+
+@bot.command(name='roll', help='Do a 10 roll and hope you get yuni')
+async def roll(ctx, *banners):
+    message = []
+    gacha = Gacha()
+    gacha.set_pool(banners)
+    results = gacha.get_ten()
+
+    for draw in results:
+        if draw in gacha.perm_list:
+            message.append("""```yaml
+{}```""".format(draw))
+
+        elif draw in gacha.special_list:
+            message.append("""```fix
+{}```""".format(draw))
+
+        else:
+            message.append("""```brainfuck
+{}```""".format(draw))
+
+    await ctx.send(''.join(message))
+
+
+@bot.command(name='rollspark', help='Do a 200 roll and hope you get your spark target')
+async def rollspark(ctx, *banners):
+    message = []
+    gacha = Gacha()
+    gacha.set_pool(banners)
+    results = gacha.get_spark()
+
+    message.append("""```css\n
+You got {} SSR in 200 rolls
+Including the following 3★:```""".format(len(results)))
+
+    for draw in results:
+        if draw in gacha.special_list:
+            message.append("""```fix
+{}
+```""".format(draw))
+        else:
+            message.append("""```yaml
+{}```""".format(draw))
+
+    await ctx.send(''.join(message))
+
 
 @bot.command(name='spark', help='Calculate spark')
 async def spark(ctx, jewels = 0, tickets = 0):

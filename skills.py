@@ -9,6 +9,12 @@ with open("csv/gamewith_urls.csv", 'r', encoding='cp932', errors='ignore') as cs
     next(list_reader, None)
     url_list = list(list_reader)
 
+NAME = 0
+RARITY = 1
+TYPE = 2
+ALIAS = 3
+URL = 4
+
 
 class Skills:
 
@@ -24,13 +30,13 @@ class Skills:
         count = 0
         while count < (len(url_list) + 1):
             for data in url_list:
-                if name.lower() == data[0].lower():
+                if name.lower() == data[NAME].lower():
                     url = data
                     break
             # If exact chara name not found, iterate through chara aliases to get exact match
             if not url:
                 for data in url_list:
-                    alias = data[3].split(",")
+                    alias = data[ALIAS].split(",")
                     if name.lower() in alias:
                         url = data
                         break
@@ -43,7 +49,7 @@ class Skills:
         if data == "":
             return False
         else:
-            page = requests.get(data[4])  # Request page
+            page = requests.get(data[URL])  # Request page
 
             soup = BeautifulSoup(page.content, "html.parser")  # parse HTML to soup
             results = soup.find(id="article-body")  # Find id "article-body" in webpage
