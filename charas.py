@@ -25,7 +25,7 @@ class Chara:
         while count < (len(url_list) + 1):
             for data in url_list:
                 if name.lower() == data[0].lower():
-                    url = data[4]
+                    url = data
                     break
             # If exact chara name not found, iterate through chara aliases to get exact match
             if not url:

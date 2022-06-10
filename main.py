@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from discord.ext import commands
 from googletrans import Translator
 from charas import Chara
+from skills import Skills
 import random
 import discord
 
@@ -42,6 +43,34 @@ async def chara(ctx, *names):
     ```""".format(*summary)
     await ctx.send(message)
 
+
+@bot.command(name='skill', help='Return skills of a character', aliases=['s'])
+async def chara(ctx, *names):
+    skills = Skills()
+    message = []
+    character_to_remove = "!. "
+    joined_name = "".join(names)
+    name = joined_name.lower().strip()
+    for character in character_to_remove:
+        name = name.replace(character, "")
+    skills_summary = skills.get_skills(name)
+    if not skills_summary:
+        message = "Character not found, please try again"
+    else:
+        message = """```css
+UB
+{}
+    
+Skill 1
+{}
+
+Skill 2
+{}
+
+Passive
+{}
+        ```""".format(*skills_summary)
+    await ctx.send(message)
 
 @bot.command(name='spark', help='Calculate spark')
 async def spark(ctx, jewels = 0, tickets = 0):
