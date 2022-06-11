@@ -25,21 +25,12 @@ class Chara:
         :return url:
         """
         url = ""
-        # Iterate through character name to get exact match
-        count = 0
-        while count < (len(url_list) + 1):
-            for data in url_list:
-                if name.lower() == data[NAME].lower():
+        # Iterate through character aliases to get exact match
+        for data in url_list:
+            aliases = data[ALIAS].split(",")
+            for alias in aliases:
+                if name.lower() == alias.lower():
                     url = data
-                    break
-            # If exact chara name not found, iterate through chara aliases to get exact match
-            if not url:
-                for data in url_list:
-                    alias = data[ALIAS].split(",")
-                    if name.lower() in alias:
-                        url = data
-                        break
-            count = count + 1
         return url
 
     def get_page(self, name):
@@ -89,7 +80,7 @@ class Chara:
             ratings = separator.join(split_ratings)  # join back the strings with linebreaks
             ratings_tl = translator.translate(ratings, dest='en').text  # translate the string and save it to new variable
 
-            # remove "(" and translate chara type
+            # add ")" at the end and translate chara type
             chara_type = chara_type + ")"
             chara_type_tl = translator.translate(chara_type, dest='en').text
 

@@ -26,24 +26,23 @@ class Skills:
         :return url:
         """
         url = ""
-        # Iterate through character name to get exact match
-        count = 0
-        while count < (len(url_list) + 1):
-            for data in url_list:
-                if name.lower() == data[NAME].lower():
+        # Iterate through character aliases to get exact match
+        for data in url_list:
+            aliases = data[ALIAS].split(",")
+            for alias in aliases:
+                if name.lower() == alias.lower():
                     url = data
-                    break
-            # If exact chara name not found, iterate through chara aliases to get exact match
-            if not url:
-                for data in url_list:
-                    alias = data[ALIAS].split(",")
-                    if name.lower() in alias:
-                        url = data
-                        break
-            count = count + 1
         return url
 
     def get_skills(self, name):
+        """
+        Run get_url function to get the URL of the character,
+        Request the page and extract the skills table from the page,
+        Save the skills into a list and translate the list,
+        Return the translated skills list.
+        :param name:
+        :return skills:
+        """
         data = self.get_url(name)  # Get URL
 
         if data == "":
@@ -55,6 +54,7 @@ class Skills:
             results = soup.find(id="article-body")  # Find id "article-body" in webpage
             # Find class "pcr_skillt_table" for table of summary
             results_elements = results.find_all("div", class_="pcr_skillt_table")
+
             # change all br to new lines
             for br in soup.find_all("br"):
                 br.replace_with("\n")
@@ -69,7 +69,7 @@ class Skills:
         translator = Translator()
 
         # Translate fulltext skills into English
-        skills = []
+        skills = [data[NAME]]
         for text in fulltext:
             skills.append(translator.translate(text, dest='en').text)
 
