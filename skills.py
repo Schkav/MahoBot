@@ -49,7 +49,7 @@ class Skills:
             return False
         else:
             page = requests.get(data[URL])  # Request page
-
+            print(page)  # check request result
             soup = BeautifulSoup(page.content, "html.parser")  # parse HTML to soup
             results = soup.find(id="article-body")  # Find id "article-body" in webpage
             # Find class "pcr_skillt_table" for table of summary

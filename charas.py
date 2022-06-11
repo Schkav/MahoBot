@@ -49,7 +49,7 @@ class Chara:
             return False
         else:
             page = requests.get(data[URL])  # Request page
-
+            print(page)  # check request result
             soup = BeautifulSoup(page.content, "html.parser")  # parse HTML to soup
             results = soup.find(id="article-body")  # Find id "article-body" in webpage
             results_elements = results.find_all("div", class_="puri_hyouka_table")  # Find class "puri-hyouka-table" for table of summary

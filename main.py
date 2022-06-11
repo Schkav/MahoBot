@@ -190,7 +190,9 @@ Thank you for your feedback!"""
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.BadArgument):
-        await ctx.send('Invalid parameters. See %help for correct parameters.')
+        await ctx.send('Invalid parameters. See %help [command] for correct parameters.')
+    elif isinstance(error, commands.CommandNotFound):
+        await ctx.send('Invalid command. See %help for list of commands.')
 
 
 bot.run(TOKEN)
