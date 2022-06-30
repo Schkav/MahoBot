@@ -154,7 +154,7 @@ async def choice(ctx, *choices):
 
 @bot.command(name='translate', help='Translate [text] > [language]. Default is translate to English if without ">" sign', aliases=['tl'])
 async def translate(ctx, *texts):
-    translator = Translator()  # create translator object
+    translator = Translator(service_urls="translate.google.com")  # create translator object
     joined_text = " ".join(texts).lower()  # join the input into one string and convert them into lowercase
     lan_choice = False  # to check if there is destination language in string
     # if the string contains ">", set lan_choice to True
