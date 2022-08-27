@@ -135,7 +135,6 @@ async def rolluntil(ctx, *target):
     result = gacha.roll_until(target)  # do a 10 draw until you get target
     if not result:
         message.append("Character not found, please try again")
-        await ctx.send(''.join(message))
     elif result[0] < 200:
         message.append("""```css\n
 You got {} in {} rolls, congrats!```""".format(result[1], result[0]))
