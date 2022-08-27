@@ -1,5 +1,6 @@
 import csv
 import random
+from charas import Chara
 
 with open("csv/gamewith_urls.csv", 'r', encoding='cp932', errors='ignore') as csv_file:
     list_reader = csv.reader(csv_file)
@@ -179,3 +180,37 @@ class Gacha:
         # Filter item in list by SSR only
         ssr_result = [ssr for ssr in self.draw_result if ssr in self.perm_list or ssr in self.limited_pool]
         return ssr_result
+
+    def roll_until(self, target):
+        """
+        Roll until you get the specified character
+        """
+        self.target = target
+        self.draw_results = []
+        self.draw_result = []
+        self.get_ten_result = []
+        count = 0
+
+        chara = Chara()
+        character_to_remove = "!. "  # set unwanted characters in text
+        joined_name = "".join(target)  # join the input into one string
+        name = joined_name.lower().strip()  # convert input into lowercase and remove any spaces
+        for character in character_to_remove:
+            name = name.replace(character, "")  # remove any unwanted characters in text
+        data = chara.get_url(name)  # run get_skills from skills.py to get character skills
+
+        if data == "":
+            return False
+        else:
+            banner = (data[TYPE],)
+            self.set_pool(banner)
+            while data[NAME] not in self.get_ten_result:
+                self.get_ten_result = self.get_ten()
+                self.draw_results.append(self.get_ten_result)
+                if count == 200:
+                    break
+                count = count + 10
+            self.draw_result = [item for sublist in self.draw_results for item in sublist]
+            ssr_result = [ssr for ssr in self.draw_result if ssr in self.perm_list or ssr in self.limited_pool]
+            return count, data[NAME], ssr_result
+

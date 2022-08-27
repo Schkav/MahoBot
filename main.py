@@ -127,6 +127,48 @@ Including the following 3★:```""".format(len(results)))
     await ctx.send(''.join(message))
 
 
+@bot.command(name='rolluntil', help='Roll until you get your target and hope you sack')
+async def rolluntil(ctx, *target):
+    message = []
+    gacha = Gacha()  # create gacha object
+
+    result = gacha.roll_until(target)  # do a 10 draw until you get target
+    if not result:
+        message.append("Character not found, please try again")
+        await ctx.send(''.join(message))
+    elif result[0] < 200:
+        message.append("""```css\n
+You got {} in {} rolls, congrats!```""".format(result[1], result[0]))
+
+        message.append("""```css\n
+You also got {} 3★:```""".format(len(result[2])))
+        for draw in result[2]:
+            if draw in gacha.special_list:
+                message.append("""```fix
+{}
+```""".format(draw))
+            else:
+                message.append("""```yaml
+{}```""".format(draw))
+
+    elif result[0] == 200:
+        message.append("""```css\n
+You got {} from pity in {} rolls, too bad :(```""".format(result[1], result[0]))
+
+        message.append("""```css\n
+You also got {} 3★:```""".format(len(result[2])))
+        for draw in result[2]:
+            if draw in gacha.special_list:
+                message.append("""```fix
+{}
+```""".format(draw))
+            else:
+                message.append("""```yaml
+{}```""".format(draw))
+
+    await ctx.send(''.join(message))
+
+
 @bot.command(name='spark', help='Calculate spark')
 async def spark(ctx, jewels = 0, tickets = 0):
     jewel_rolls = jewels//150
