@@ -168,6 +168,31 @@ You also got {} 3★:```""".format(len(result[2])))
     await ctx.send(''.join(message))
 
 
+@bot.command(name='rolluntilnl', help='Roll until you get your target and see true despair', aliases=['rolluntilnolimit'])
+async def rolluntilnl(ctx, *target):
+    message = []
+    gacha = Gacha()  # create gacha object
+
+    result = gacha.roll_until_nl(target)  # do a 10 draw until you get target
+    if not result:
+        message.append("Character not found, please try again")
+    elif result[0] <= 200:
+        message.append("""```css\n
+You got {} in {} rolls, congrats!```""".format(result[1], result[0]))
+    else:
+        message.append("""```css\n
+You got {} in {} rolls, how far did it go?```""".format(result[1], result[0]))
+
+    limited_count = 0
+    for draw in result[2]:
+        if draw in gacha.special_list:
+            limited_count += 1
+    message.append("""```css\n
+You also got {} 3★ total, {} of them are limiteds.```""".format(len(result[2]), limited_count))
+
+    await ctx.send(''.join(message))
+
+
 @bot.command(name='spark', help='Calculate spark')
 async def spark(ctx, jewels = 0, tickets = 0):
     jewel_rolls = jewels//150
@@ -195,7 +220,7 @@ async def choice(ctx, *choices):
 
 @bot.command(name='translate', help='Translate [text] > [language]. Default is translate to English if without ">" sign', aliases=['tl'])
 async def translate(ctx, *texts):
-    translator = Translator(service_urls="translate.google.com")  # create translator object
+    translator = Translator()  # create translator object
     joined_text = " ".join(texts).lower()  # join the input into one string and convert them into lowercase
     lan_choice = False  # to check if there is destination language in string
     # if the string contains ">", set lan_choice to True

@@ -46,7 +46,8 @@ for chara in chara_list:
         onestar_list.append(chara[NAME])
 
 # Rates
-LIMITED_RATE_UP = 0.015
+CHARA_RATE_UP = 0.007
+LIMITED_RATE_UP = 0.016
 SSR_RATE = 0.03
 SR_RATE = 0.18
 R_RATE = 0.79
@@ -113,19 +114,20 @@ class Gacha:
         Do a single roll
         If there is limited banner, rate up for limited banner will be applied
         """
+        random_num = random.random()
         if self.limited_pool:
-            if random.random() < LIMITED_RATE_UP:
+            if random_num < LIMITED_RATE_UP:
                 return random.choice(list(self.limited_pool))
-            elif random.random() < (self.ssr_rate - LIMITED_RATE_UP):
+            elif random_num < (self.ssr_rate - LIMITED_RATE_UP):
                 return random.choice(list(self.perm_list))
-            elif random.random() < SR_RATE:
+            elif random_num < SR_RATE:
                 return random.choice(list(self.twostar_list))
             else:
                 return random.choice(list(self.onestar_list))
         else:
-            if random.random() < self.ssr_rate:
+            if random_num < self.ssr_rate:
                 return random.choice(self.perm_list)
-            elif random.random() < SR_RATE:
+            elif random_num < SR_RATE:
                 return random.choice(self.twostar_list)
             else:
                 return random.choice(self.onestar_list)
@@ -134,15 +136,16 @@ class Gacha:
         """
         Last draw of a 10 roll with SR and up
         """
+        random_num = random.random()
         if self.limited_pool:
-            if random.random() < LIMITED_RATE_UP:
+            if random_num < LIMITED_RATE_UP:
                 return random.choice(list(self.limited_pool))
-            elif random.random() < (self.ssr_rate - LIMITED_RATE_UP):
+            elif random_num < (self.ssr_rate - LIMITED_RATE_UP):
                 return random.choice(list(self.perm_list))
             else:
                 return random.choice(list(self.twostar_list))
         else:
-            if random.random() < self.ssr_rate:
+            if random_num < self.ssr_rate:
                 return random.choice(list(self.perm_list))
             else:
                 return random.choice(list(self.twostar_list))
@@ -159,6 +162,66 @@ class Gacha:
                 self.draw_result.append(self.get_last_draw())
             else:
                 self.draw_result.append(self.get_single())
+                count += 1
+        return self.draw_result
+
+    def get_single_target(self, target):
+        """
+        Do a single roll
+        If there is limited banner, rate up for limited banner will be applied
+        """
+        random_num = random.random()
+        if self.limited_pool:
+            if random_num < CHARA_RATE_UP:
+                return target
+            elif random_num < LIMITED_RATE_UP:
+                return random.choice(list(self.limited_pool))
+            elif random_num < (self.ssr_rate - LIMITED_RATE_UP):
+                return random.choice(list(self.perm_list))
+            elif random_num < SR_RATE:
+                return random.choice(list(self.twostar_list))
+            else:
+                return random.choice(list(self.onestar_list))
+        else:
+            if random_num < self.ssr_rate:
+                return random.choice(self.perm_list)
+            elif random_num < SR_RATE:
+                return random.choice(self.twostar_list)
+            else:
+                return random.choice(self.onestar_list)
+
+    def get_last_draw_target(self, target):
+        """
+        Last draw of a 10 roll with SR and up
+        """
+        random_num = random.random()
+        if self.limited_pool:
+            if random_num < CHARA_RATE_UP:
+                return target
+            elif random_num < LIMITED_RATE_UP:
+                return random.choice(list(self.limited_pool))
+            elif random_num < (self.ssr_rate - LIMITED_RATE_UP):
+                return random.choice(list(self.perm_list))
+            else:
+                return random.choice(list(self.twostar_list))
+        else:
+            if random_num < self.ssr_rate:
+                return random.choice(list(self.perm_list))
+            else:
+                return random.choice(list(self.twostar_list))
+
+    def get_ten_target(self, target):
+        """
+        Do single draw 9x + 1x last draw and add them to draw_result
+        Then return draw_result
+        """
+        self.draw_result = []
+        count = 1
+        for i in range(10):
+            if count == 10:
+                self.draw_result.append(self.get_last_draw_target(target))
+            else:
+                self.draw_result.append(self.get_single_target(target))
                 count += 1
         return self.draw_result
 
@@ -205,7 +268,7 @@ class Gacha:
             banner = (data[TYPE],)
             self.set_pool(banner)
             while data[NAME] not in self.get_ten_result:
-                self.get_ten_result = self.get_ten()
+                self.get_ten_result = self.get_ten_target(data[NAME])
                 self.draw_results.append(self.get_ten_result)
                 if count == 200:
                     break
@@ -214,3 +277,33 @@ class Gacha:
             ssr_result = [ssr for ssr in self.draw_result if ssr in self.perm_list or ssr in self.limited_pool]
             return count, data[NAME], ssr_result
 
+    def roll_until_nl(self, target):
+        """
+        Roll until you get the specified character with no limit
+        """
+        self.target = target
+        self.draw_results = []
+        self.draw_result = []
+        self.get_ten_result = []
+        count = 0
+
+        chara = Chara()
+        character_to_remove = "!. "  # set unwanted characters in text
+        joined_name = "".join(target)  # join the input into one string
+        name = joined_name.lower().strip()  # convert input into lowercase and remove any spaces
+        for character in character_to_remove:
+            name = name.replace(character, "")  # remove any unwanted characters in text
+        data = chara.get_url(name)  # run get_skills from skills.py to get character skills
+
+        if data == "":
+            return False
+        else:
+            banner = (data[TYPE],)
+            self.set_pool(banner)
+            while data[NAME] not in self.get_ten_result:
+                self.get_ten_result = self.get_ten_target(data[NAME])
+                self.draw_results.append(self.get_ten_result)
+                count = count + 10
+            self.draw_result = [item for sublist in self.draw_results for item in sublist]
+            ssr_result = [ssr for ssr in self.draw_result if ssr in self.perm_list or ssr in self.limited_pool]
+            return count, data[NAME], ssr_result
